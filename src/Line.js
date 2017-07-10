@@ -100,12 +100,12 @@ export default class LineChart extends Component {
     }.bind(this))
     let areas = null
     if (showAreaForFirstData) {
-      var areaWidth = chart.curves[0].item.length * 42
+      debugger
       areas = _.map(chart.curves, function (c, i) {
         if (i === 0) {
           return <G>
             <Defs>
-              <LinearGradient id="areaGrad" x1={'0'} y1={'0'} x2={areaWidth} y2={'0'}>
+              <LinearGradient id="areaGrad" x1={'0'} y1={'0'} x2={chart.width} y2={'0'}>
                 <Stop offset="0" stopColor='#ffb8c0' stopOpacity="0" />
                 <Stop offset="1" stopColor="#37374C" stopOpacity="1" />
               </LinearGradient>
