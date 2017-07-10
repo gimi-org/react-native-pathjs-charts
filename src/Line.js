@@ -18,7 +18,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import React,{Component} from 'react'
 import {Text as ReactText}  from 'react-native'
-import Svg,{ G, Path, Rect, Text } from 'react-native-svg'
+import Svg,{ G, Path, Rect, Text, LinearGradient, Stop, Defs } from 'react-native-svg'
 import { Colors, Options, cyclic, fontAdapt } from './util'
 import Axis from './Axis'
 import _ from 'lodash'
@@ -102,13 +102,13 @@ export default class LineChart extends Component {
     if (showAreaForFirstData) {
       areas = _.map(chart.curves, function (c, i) {
         if (i === 0) {
-          return <Path key={'areas' + i} d={c.area.path.print()} fillOpacity={0.5} stroke="none" fill={this.color(i)}/>
+          return <Path key={'areas' + i} d={c.area.path.print()} fillOpacity={0.3} stroke="none" fill={this.color(i)}/>
         }
       }.bind(this))
     }
     else if (showAreas){
       areas = _.map(chart.curves, function (c, i) {
-        return <Path key={'areas' + i} d={ c.area.path.print() } fillOpacity={0.5} stroke="none" fill={ this.color(i) }/>
+        return <Path key={'areas' + i} d={ c.area.path.print() } fillOpacity={0.3} stroke="none" fill={ this.color(i) }/>
       }.bind(this))
     }
 
@@ -159,10 +159,18 @@ export default class LineChart extends Component {
 
         return (
           <G key={'region' + i}>
-            <Rect key={'region' + i} x={x} y={y} width={width} height={height}
-              fill={c.fill} fillOpacity={fillOpacity}/>
-            {regionLabel}
-          </G>
+            <Defs>
+          <LinearGradient id="grad" x1={'0'} y1={'75'} x2={'0'} y2={'0'}>
+            <Stop offset="0" stopColor="#37374C" stopOpacity="0" />
+            <Stop offset="1" stopColor='#5FB896' stopOpacity="0.5" />
+        </LinearGradient>
+        </Defs>
+        <Rect key={'region' + i} x={x} y={y} width={width} height={height} fill="url(#grad)" />
+        {regionLabel}
+  </G>
+
+
+
         )
       }.bind(this))
     }
