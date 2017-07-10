@@ -18,7 +18,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import React,{Component} from 'react'
 import {Text as ReactText}  from 'react-native'
-import Svg,{ G, Path, Rect, Text, LinearGradient, Stop, Defs } from 'react-native-svg'
+import Svg,{ G, Path, Rect, Text, LinearGradient, Stop, Defs, Circle} from 'react-native-svg'
 import { Colors, Options, cyclic, fontAdapt } from './util'
 import Axis from './Axis'
 import _ from 'lodash'
@@ -100,9 +100,18 @@ export default class LineChart extends Component {
     }.bind(this))
     let areas = null
     if (showAreaForFirstData) {
+      var areaWidth = chart.curves[0].item.length * 42
       areas = _.map(chart.curves, function (c, i) {
         if (i === 0) {
-          return <Path key={'areas' + i} d={c.area.path.print()} fillOpacity={0.3} stroke="none" fill={this.color(i)}/>
+          return <G>
+            <Defs>
+              <LinearGradient id="areaGrad" x1={'0'} y1={'0'} x2={areaWidth} y2={'0'}>
+                <Stop offset="0" stopColor='#ffb8c0' stopOpacity="0" />
+                <Stop offset="1" stopColor="#37374C" stopOpacity="1" />
+              </LinearGradient>
+            </Defs>
+            <Path key={'areas' + i} d={c.area.path.print()} fillOpacity={0.8} stroke="none" fill="url(#areaGrad)" />
+          </G>
         }
       }.bind(this))
     }
@@ -111,6 +120,13 @@ export default class LineChart extends Component {
         return <Path key={'areas' + i} d={ c.area.path.print() } fillOpacity={0.3} stroke="none" fill={ this.color(i) }/>
       }.bind(this))
     }
+    var points = _.map(chart.curves, function (c) {
+      return _.map(c.line.path.points(),function(p,j) {
+        return <Circle key={'k' + j} x={p[0]} y={p[1]} stroke='#ffb8c0' fill="#ffb8c0" r={options.r || 5} fillOpacity={1} />
+      },this)
+    },this)
+
+    points = points[0]
 
     let textStyle = fontAdapt(options.label)
     let regions
@@ -160,12 +176,12 @@ export default class LineChart extends Component {
         return (
           <G key={'region' + i}>
             <Defs>
-          <LinearGradient id="grad" x1={'0'} y1={'75'} x2={'0'} y2={'0'}>
+          <LinearGradient id="parentGrad" x1={'0'} y1={'75'} x2={'0'} y2={'0'}>
             <Stop offset="0" stopColor="#37374C" stopOpacity="0" />
             <Stop offset="1" stopColor='#5FB896' stopOpacity="0.5" />
         </LinearGradient>
         </Defs>
-        <Rect key={'region' + i} x={x} y={y} width={width} height={height} fill="url(#grad)" />
+        <Rect key={'region' + i} x={x} y={y} width={width} height={height} fill="url(#parentGrad)" />
         {regionLabel}
   </G>
 
@@ -179,6 +195,7 @@ export default class LineChart extends Component {
                   <G x={options.margin.left} y={options.margin.top}>
                         { regions }
                         { areas }
+                        { points }
                         { lines }
                       <Axis key="x" scale={chart.xscale} options={options.axisX} chartArea={chartArea} />
                       <Axis key="y" scale={chart.yscale} options={options.axisY} chartArea={chartArea} />
