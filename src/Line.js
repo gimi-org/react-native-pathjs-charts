@@ -92,23 +92,29 @@ export default class LineChart extends Component {
     }
 
     let showAreas = typeof(this.props.options.showAreas) !== 'undefined' ? this.props.options.showAreas : true;
-    let showAreaForFirstData = typeof(this.props.options.showAreaForFirstData) !== 'undefined' ? this.props.options.showAreaForFirstData : false;
+    let showAreaForData = typeof(this.props.showAreaForData) !== 'undefined' ? this.props.showAreaForData : false;
     let dottedLines = typeof(this.props.options.dottedLines) !== 'undefined' ? this.props.options.dottedLines : false;
     let strokeWidth = typeof(this.props.options.strokeWidth) !== 'undefined' ? this.props.options.strokeWidth : '1';
+    let areaFade = typeof(this.props.areaFade) !== 'undefined' ? this.props.areaFade : false;
+    let areaFadeColors = typeof(this.props.areaFadeColors) !== 'undefined' ? this.props.areaFadeColors : false;
+    let dashedDataArray = typeof(this.props.dashedDataArray) !== 'undefined' ? this.props.dashedDataArray : false;
+    let regionFade = typeof(this.props.regionFade) !== 'undefined' ? this.props.regionFade : false;
+    let regionFadeColors = typeof(this.props.regionFadeColors) !== 'undefined' ? this.props.regionFadeColors : false;
+
     let lines = _.map(chart.curves, function (c, i) {
-      return <Path key={'lines' + i} d={ c.line.path.print() } strokeDasharray={i !== 0 ? '3,3' : ''} stroke={ this.color(i) } strokeWidth={strokeWidth} fill="none"/>
+      return <Path key={'lines' + i} d={ c.line.path.print() } strokeDasharray={dashedDataArray.indexOf(i) !== -1 ? '3,3' : ''} stroke={ this.color(i) } strokeWidth={strokeWidth} fill="none"/>
     }.bind(this))
     let areas = null
-    if (showAreaForFirstData) {
-      debugger
+    if (showAreaForData) {
       areas = _.map(chart.curves, function (c, i) {
-        if (i === 0) {
+        if (showAreaForData.indexOf(i) !== -1) {
           return <G>
             <Defs>
-              <LinearGradient id="areaGrad" x1={'0'} y1={'0'} x2={chart.width} y2={'0'}>
-                <Stop offset="0" stopColor='#ffb8c0' stopOpacity="0" />
-                <Stop offset="1" stopColor="#37374C" stopOpacity="1" />
-              </LinearGradient>
+              {areaFade ? <LinearGradient id="areaGrad" x1={'0'} y1={'0'} x2={chart.width} y2={'0'}>
+                <Stop offset="0" stopColor={areaFadeColors[0]} stopOpacity="0" />
+                <Stop offset="1" stopColor={areaFadeColors[1]} stopOpacity="1" />
+              </LinearGradient> : undefined}
+
             </Defs>
             <Path key={'areas' + i} d={c.area.path.print()} fillOpacity={0.8} stroke="none" fill="url(#areaGrad)" />
           </G>
@@ -176,10 +182,11 @@ export default class LineChart extends Component {
         return (
           <G key={'region' + i}>
             <Defs>
-          <LinearGradient id="parentGrad" x1={'0'} y1={'75'} x2={'0'} y2={'0'}>
-            <Stop offset="0" stopColor="#37374C" stopOpacity="0" />
-            <Stop offset="1" stopColor='#5FB896' stopOpacity="0.5" />
-        </LinearGradient>
+              {regionFade ? <LinearGradient id="parentGrad" x1={'0'} y1={'75'} x2={'0'} y2={'0'}>
+                <Stop offset="0" stopColor={regionFadeColors[0]} stopOpacity="0" />
+                <Stop offset="1" stopColor={regionFadeColors[1]} stopOpacity="0.5" />
+            </LinearGradient> : undefined}
+
         </Defs>
         <Rect key={'region' + i} x={x} y={y} width={width} height={height} fill="url(#parentGrad)" />
         {regionLabel}
